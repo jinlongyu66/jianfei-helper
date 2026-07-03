@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>减脂助手</title>
+<style>
+:root {
+  --green: #22c55e;
+  --green-dark: #16a34a;
+  --red: #ef4444;
+  --orange: #f59e0b;
+  --bg: #f0f2f5;
+  --card: #fff;
+  --text: #1a1a2e;
+  --text2: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --radius: 12px;
+  --tab-h: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100dvh; -webkit-tap-highlight-color: transparent;
+}
+input, select, button { font: inherit; }
+.hidden { display: none !important; }
+
+/* ===== Login Page ===== */
+.login-wrap {
+  max-width: 400px; margin: 0 auto; padding: 60px 24px 40px;
+  text-align: center;
+}
+.login-wrap .logo { font-size: 56px; margin-bottom: 8px; }
+.login-wrap h1 { font-size: 24px; margin-bottom: 4px; }
+.login-wrap .sub { color: var(--text2); font-size: 14px; margin-bottom: 32px; }
+.login-wrap .field { margin-bottom: 16px; text-align: left; }
+.login-wrap label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text2); }
+.login-wrap input {
+  width: 100%; padding: 14px 16px; border: 1.5px solid var(--border);
+  border-radius: var(--radius); font-size: 16px; outline: none; transition: border .2s;
+}
+.login-wrap input:focus { border-color: var(--green); }
+.login-wrap .btn {
+  width: 100%; padding: 14px; border: none; border-radius: var(--radius);
+  font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: opacity .2s;
+}
+.btn-primary { background: var(--green); color: #fff; }
+.btn-primary:active { opacity: .8; }
+.btn-outline { background: var(--bg); color: var(--text); border: 1.5px solid var(--border); }
+.btn-outline:active { background: var(--border); }
+.login-wrap .err { color: var(--red); font-size: 13px; margin-top: 8px; min-height: 20px; }
+.login-wrap .switch { margin-top: 16px; font-size: 14px; color: var(--text2); }
+.login-wrap .switch a { color: var(--green); cursor: pointer; font-weight: 600; }
+
+/* ===== Main App ===== */
+.app-wrap { max-width: 480px; margin: 0 auto; padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); }
+header {
+  padding: 16px 20px 12px; display: flex; justify-content: space-between; align-items: center;
+}
+header h2 { font-size: 20px; }
+header .date { font-size: 13px; color: var(--text2); }
+
+/* Warning */
+.warn {
+  margin: 0 16px 12px; padding: 12px 16px; border-radius: var(--radius);
+  font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px;
+}
+.warn-red { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.warn-amber { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+
+/* Cards */
+.card {
+  background: var(--card); border-radius: var(--radius); padding: 16px 20px;
+  margin: 0 16px 12px; box-shadow: var(--shadow);
+}
+.card h3 { font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.card-row { display: flex; gap: 12px; }
+.card-stat {
+  flex: 1; text-align: center; padding: 12px 8px; background: var(--bg);
+  border-radius: 8px;
+}
+.card-stat .num { font-size: 24px; font-weight: 700; color: var(--green-dark); }
+.card-stat .unit { font-size: 12px; color: var(--text2); }
+
+/* Food */
+.food-list { margin-bottom: 12px; }
+.food-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+}
+.food-item .del { color: var(--red); cursor: pointer; font-size: 18px; padding: 4px 8px; }
+.food-input-row { display: flex; gap: 8px; margin-top: 8px; }
+.food-input-row input {
+  flex: 1; padding: 10px 12px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 14px; outline: none;
+}
+.food-input-row input:focus { border-color: var(--green); }
+.food-input-row select {
+  padding: 10px; border: 1.5px solid var(--border); border-radius: 8px;
+  background: #fff; font-size: 14px; min-width: 60px;
+}
+.food-input-row .btn-sm {
+  padding: 10px 14px; background: var(--green); color: #fff;
+  border: none; border-radius: 8px; font-size: 14px; cursor: pointer; white-space: nowrap;
+}
+.food-total { text-align: right; font-size: 13px; color: var(--text2); margin-top: 8px; }
+.food-total .over { color: var(--red); font-weight: 600; }
+.food-total .ok { color: var(--green); font-weight: 600; }
+
+/* Exercise */
+.exercise-box { padding: 12px; background: var(--bg); border-radius: 8px; font-size: 14px; line-height: 1.6; }
+.exercise-box .intensity { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 12px; font-weight: 600; }
+.intensity-low { background: #dcfce7; color: #166534; }
+.intensity-mid { background: #fef3c7; color: #92400e; }
+
+/* Checkin */
+.checkin-row { display: flex; gap: 12px; margin-top: 12px; }
+.checkin-btn {
+  flex: 1; padding: 14px; border: 2px solid var(--border); border-radius: var(--radius);
+  background: #fff; font-size: 15px; cursor: pointer; text-align: center; transition: all .2s;
+}
+.checkin-btn.done { border-color: var(--green); background: #f0fdf4; color: var(--green-dark); font-weight: 600; }
+
+/* ===== Profile Form ===== */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+.form-group input, .form-group select {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 16px; outline: none; background: #fff;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--green); }
+.form-hint { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.btn-full {
+  width: 100%; padding: 14px; background: var(--green); color: #fff;
+  border: none; border-radius: var(--radius); font-size: 16px; font-weight: 600; cursor: pointer;
+}
+
+/* ===== Weight Tab ===== */
+.weight-chart-wrap { margin: 0 16px 12px; padding: 16px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
+.weight-chart-wrap canvas { max-height: 220px; }
+.weight-input-row { display: flex; gap: 10px; margin: 0 16px 12px; }
+.weight-input-row input {
+  flex: 1; padding: 12px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 16px; outline: none;
+}
+.weight-input-row .btn-sm { padding: 12px 20px; }
+.weight-list { margin: 0 16px; }
+.weight-list .item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+}
+.goal-bar {
+  margin: 0 16px 12px; padding: 12px 16px; background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); font-size: 14px;
+}
+.goal-bar .bar { height: 8px; background: var(--border); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.goal-bar .fill { height: 100%; background: var(--green); border-radius: 4px; transition: width .5s; }
+
+/* ===== Settings Tab ===== */
+.settings-item {
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.settings-item .btn-sm { padding: 8px 16px; }
+
+/* ===== Tab Bar ===== */
+.tab-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--card); border-top: 1px solid var(--border);
+  display: flex; height: var(--tab-h); padding-bottom: var(--safe-bottom);
+}
+.tab-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 12px;
+  color: var(--text2); transition: color .2s; gap: 2px;
+}
+.tab-item .icon { font-size: 22px; }
+.tab-item.active { color: var(--green); font-weight: 600; }
+
+/* Toast */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999;
+  padding: 12px 24px; border-radius: 100px; background: #1a1a2e; color: #fff;
+  font-size: 14px; pointer-events: none; opacity: 0; transition: opacity .3s;
+}
+.toast.show { opacity: 1; }
+.toast.err { background: var(--red); }
+
+/* Loading overlay */
+.loading { text-align: center; padding: 40px; color: var(--text2); }
+.spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Manual calorie input */
+.manual-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+.manual-row input { width: 80px; padding: 8px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 14px; text-align: center; }
+.manual-row span { font-size: 13px; color: var(--text2); }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- ============ LOGIN PAGE ============ -->
+<div id="loginPage">
+  <div class="login-wrap">
+    <div class="logo">⚖️</div>
+    <h1>减脂助手</h1>
+    <p class="sub">科学减脂，安全第一</p>
+
+    <div id="loginForm">
+      <div class="field"><label>用户名</label><input id="loginUser" placeholder="输入用户名" autocomplete="username"></div>
+      <div class="field"><label>密码</label><input id="loginPwd" type="password" placeholder="输入密码" autocomplete="current-password"></div>
+      <div class="err" id="loginErr"></div>
+      <button class="btn btn-primary" onclick="doLogin()">登 录</button>
+      <p class="switch">没有账号？<a onclick="showRegister()">注册一个</a></p>
+    </div>
+
+    <div id="registerForm" class="hidden">
+      <div class="field"><label>用户名</label><input id="regUser" placeholder="取个名字" autocomplete="username"></div>
+      <div class="field"><label>密码</label><input id="regPwd" type="password" placeholder="设置密码"></div>
+      <div class="field"><label>确认密码</label><input id="regPwd2" type="password" placeholder="再输一遍"></div>
+      <div class="err" id="regErr"></div>
+      <button class="btn btn-primary" onclick="doRegister()">注 册</button>
+      <p class="switch">已有账号？<a onclick="showLogin()">去登录</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div id="mainApp" class="hidden">
+  <div class="app-wrap">
+    <header>
+      <h2 id="greeting">早上好 ☀️</h2>
+      <span class="date" id="todayDate"></span>
+    </header>
+
+    <!-- Warnings -->
+    <div id="warnArea"></div>
+
+    <!-- ===== TAB: DASHBOARD ===== -->
+    <div id="tabDashboard" class="tab-content">
+      <!-- Calorie targets -->
+      <div class="card">
+        <h3>🎯 今日目标</h3>
+        <div class="card-row">
+          <div class="card-stat"><div class="num" id="calTarget">--</div><div class="unit">目标热量 kcal</div></div>
+          <div class="card-stat"><div class="num" id="calBurned">--</div><div class="unit">预估消耗 kcal</div></div>
+          <div class="card-stat"><div class="num" id="calRemain">--</div><div class="unit">还可摄入 kcal</div></div>
+        </div>
+      </div>
+
+      <!-- Macro split -->
+      <div class="card">
+        <h3>🥗 营养素分配</h3>
+        <div class="card-row">
+          <div class="card-stat"><div class="num" id="macroProtein" style="color:#ef4444">--</div><div class="unit">蛋白质 g</div></div>
+          <div class="card-stat"><div class="num" id="macroCarbs" style="color:#f59e0b">--</div><div class="unit">碳水 g</div></div>
+          <div class="card-stat"><div class="num" id="macroFat" style="color:#3b82f6">--</div><div class="unit">脂肪 g</div></div>
+        </div>
+      </div>
+
+      <!-- Food log -->
+      <div class="card">
+        <h3>🍽️ 今日饮食</h3>
+        <div class="food-list" id="foodList"><div class="loading" style="padding:12px">—</div></div>
+        <div class="food-total" id="foodTotal"></div>
+        <div class="food-input-row">
+          <select id="mealType"><option value="breakfast">早餐</option><option value="lunch" selected>午餐</option><option value="dinner">晚餐</option><option value="snack">加餐</option></select>
+          <input id="foodDesc" placeholder="吃了什么？如：一碗牛肉面">
+          <button class="btn-sm" onclick="addFood()" id="addFoodBtn">🤖 估热</button>
+        </div>
+        <div class="manual-row">
+          <span>或手动输入：</span>
+          <input id="manualCal" type="number" placeholder="热量" min="0">
+          <span>kcal</span>
+          <button class="btn-sm" style="background:var(--text2)" onclick="addFoodManual()">添加</button>
+        </div>
+      </div>
+
+      <!-- Exercise -->
+      <div class="card">
+        <h3>🏃 今日运动</h3>
+        <div class="exercise-box" id="exerciseBox">请先填写身体数据</div>
+      </div>
+
+      <!-- Checkin -->
+      <div class="card">
+        <h3>✅ 每日打卡</h3>
+        <div class="checkin-row">
+          <button class="checkin-btn" id="btnDiet" onclick="toggleCheckin('diet')">🥗 饮食达标</button>
+          <button class="checkin-btn" id="btnExercise" onclick="toggleCheckin('exercise')">🏃 完成运动</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: PROFILE ===== -->
+    <div id="tabProfile" class="tab-content hidden">
+      <div class="card">
+        <h3>👤 身体数据</h3>
+        <div class="form-group"><label>身高 (cm)</label><input id="pfHeight" type="number" placeholder="如：175" min="100" max="250"></div>
+        <div class="form-group"><label>当前体重 (kg)</label><input id="pfWeight" type="number" placeholder="如：80" min="30" max="300" step="0.1"></div>
+        <div class="form-group"><label>目标体重 (kg)</label><input id="pfTarget" type="number" placeholder="如：70" min="30" max="300" step="0.1"></div>
+        <div class="form-group"><label>年龄</label><input id="pfAge" type="number" placeholder="如：25" min="10" max="100"></div>
+        <div class="form-group">
+          <label>性别</label>
+          <select id="pfGender"><option value="male">男</option><option value="female">女</option></select>
+        </div>
+        <div class="form-group">
+          <label>活动水平</label>
+          <select id="pfActivity">
+            <option value="sedentary">久坐不动（几乎不运动）</option>
+            <option value="light">轻度活动（每周1-3次）</option>
+            <option value="moderate">中度活动（每周3-5次）</option>
+            <option value="active">高度活跃（每周6-7次）</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>减重速度</label>
+          <select id="pfDeficit">
+            <option value="200">温和 -200kcal/天（约0.2kg/周）</option>
+            <option value="300" selected>适中 -300kcal/天（约0.3kg/周）</option>
+            <option value="500">激进 -500kcal/天（约0.5kg/周）</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>每天运动时间</label>
+          <select id="pfTime">
+            <option value="15">15 分钟</option>
+            <option value="30" selected>30 分钟</option>
+            <option value="45">45 分钟</option>
+            <option value="60">60 分钟</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>运动器材</label>
+          <select id="pfEquip">
+            <option value="none">无器材（徒手）</option>
+            <option value="bands">弹力带</option>
+            <option value="dumbbell">哑铃</option>
+            <option value="gym">健身房</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>有厨房能做饭吗？</label>
+          <select id="pfKitchen">
+            <option value="1">有厨房，能做饭</option>
+            <option value="0">没有厨房，外卖/便利店</option>
+          </select>
+        </div>
+        <button class="btn-full" onclick="saveProfile()">💾 保存数据</button>
+      </div>
+    </div>
+
+    <!-- ===== TAB: WEIGHT ===== -->
+    <div id="tabWeight" class="tab-content hidden">
+      <div class="goal-bar" id="goalBar"></div>
+      <div class="weight-chart-wrap"><canvas id="weightChart"></canvas></div>
+      <div class="weight-input-row">
+        <input id="weightInput" type="number" placeholder="输入今日体重 (kg)" step="0.1" min="30" max="300">
+        <button class="btn-sm" style="background:var(--green);color:#fff;border:none;border-radius:8px;" onclick="addWeight()">记录</button>
+      </div>
+      <div class="weight-list" id="weightList"></div>
+    </div>
+
+    <!-- ===== TAB: SETTINGS ===== -->
+    <div id="tabSettings" class="tab-content hidden">
+      <div class="card">
+        <h3>🤖 AI 设置</h3>
+        <div class="form-group">
+          <label>AI 服务商</label>
+          <select id="aiProvider">
+            <option value="deepseek">DeepSeek（推荐，便宜）</option>
+            <option value="openai">OpenAI</option>
+            <option value="claude">Claude (Anthropic)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>API Key</label>
+          <input id="aiKey" type="password" placeholder="sk-...">
+          <div class="form-hint">Key 只存在你的浏览器里，不上传服务器</div>
+        </div>
+        <button class="btn-full" onclick="saveAiKey()" style="margin-top:8px">💾 保存 AI 设置</button>
+      </div>
+
+      <div class="card">
+        <h3>🔒 账号</h3>
+        <div class="settings-item" style="border:none">
+          <span>修改密码</span>
+          <button class="btn-sm" style="background:var(--text2);color:#fff;border:none;border-radius:6px" onclick="changePw()">修改</button>
+        </div>
+        <div class="settings-item" style="border:none">
+          <span>数据备份</span>
+          <button class="btn-sm" style="background:var(--text2);color:#fff;border:none;border-radius:6px" onclick="exportData()">导出</button>
+        </div>
+        <div class="settings-item" style="border:none">
+          <span>退出登录</span>
+          <button class="btn-sm" style="background:var(--red);color:#fff;border:none;border-radius:6px" onclick="logout()">退出</button>
+        </div>
+      </div>
+
+      <p style="text-align:center;color:var(--text2);font-size:12px;padding:20px">
+        减脂助手 v1.0 · 安全减脂，不伤身体
+      </p>
+    </div>
+  </div>
+
+  <!-- Bottom Tab Bar -->
+  <nav class="tab-bar">
+    <div class="tab-item active" data-tab="Dashboard"><span class="icon">🏠</span>今日</div>
+    <div class="tab-item" data-tab="Profile"><span class="icon">👤</span>身体</div>
+    <div class="tab-item" data-tab="Weight"><span class="icon">📊</span>体重</div>
+    <div class="tab-item" data-tab="Settings"><span class="icon">⚙️</span>设置</div>
+  </nav>
+</div>
+
+<script src="chart.min.js"></script>
+<script>
+// =========================== CONFIG ===========================
+const SB_URL = 'https://xyeecqpbaxzjrbukipyi.supabase.co';
+const SB_KEY = 'sb_publishable_vtschTBXX1hOhJ0BYLbOag_jsU2yL4m';
+
+let TOKEN = sessionStorage.getItem('fit_token') || null;
+let IS_ADMIN = sessionStorage.getItem('fit_admin') === 'true'; // placeholder('fit_admin') === 'true';
+let profile = null;
+let weightLogs = [];
+let foodLogs = [];
+let checkinToday = { diet_ok: false, exercise_ok: false };
+let weightChart = null;
+
+// =========================== HELPERS ===========================
+function toast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show' + (isErr ? ' err' : '');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+async function callRpc(fn, params) {
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY },
+      body: JSON.stringify(params)
+    });
+    if (!r.ok) {
+      const err = await r.text();
+      if (err.includes('invalid token')) { logout(); throw new Error('登录已过期'); }
+      throw new Error(err);
+    }
+    return r.json();
+  } catch (e) {
+    if (e.message === 'Failed to fetch') {
+      // Offline fallback
+      throw new Error('OFFLINE');
+    }
+    throw e;
+  }
+}
+
+function today() { return new Date().toISOString().slice(0, 10); }
+function now() { return new Date(); }
+
+// =========================== AUTH ===========================
+function showRegister() {
+  document.getElementById('loginForm').classList.add('hidden');
+  document.getElementById('registerForm').classList.remove('hidden');
+  document.getElementById('loginErr').textContent = '';
+}
+
+function showLogin() {
+  document.getElementById('registerForm').classList.add('hidden');
+  document.getElementById('loginForm').classList.remove('hidden');
+  document.getElementById('regErr').textContent = '';
+}
+
+async function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPwd').value;
+  if (!u || !p) { document.getElementById('loginErr').textContent = '请填写用户名和密码'; return; }
+  document.getElementById('loginErr').textContent = '';
+  try {
+    const r = await callRpc('fit_login', { uname: u, pwd: p });
+    if (!r.ok) { document.getElementById('loginErr').textContent = r.error; return; }
+    TOKEN = r.token;
+    sessionStorage.setItem('fit_token', TOKEN);
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('hidden');
+    await initApp();
+  } catch (e) {
+    document.getElementById('loginErr').textContent = '登录失败: ' + e.message;
+  }
+}
+
+async function doRegister() {
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPwd').value;
+  const p2 = document.getElementById('regPwd2').value;
+  if (!u || !p) { document.getElementById('regErr').textContent = '请填写用户名和密码'; return; }
+  if (p !== p2) { document.getElementById('regErr').textContent = '两次密码不一致'; return; }
+  if (p.length < 4) { document.getElementById('regErr').textContent = '密码至少4位'; return; }
+  document.getElementById('regErr').textContent = '';
+  try {
+    const r = await callRpc('fit_register', { uname: u, pwd: p });
+    if (!r.ok) { document.getElementById('regErr').textContent = r.error; return; }
+    TOKEN = r.token;
+    sessionStorage.setItem('fit_token', TOKEN);
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('hidden');
+    toast('注册成功！请填写身体数据');
+    await initApp();
+    switchTab('Profile');
+  } catch (e) {
+    document.getElementById('regErr').textContent = '注册失败: ' + e.message;
+  }
+}
+
+async function logout() {
+  if (TOKEN) { try { await callRpc('fit_logout', { tok: TOKEN }); } catch (e) {} }
+  TOKEN = null; sessionStorage.removeItem('fit_token');
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+}
+
+async function changePw() {
+  const oldPwd = prompt('旧密码：');
+  if (!oldPwd) return;
+  const newPwd = prompt('新密码：');
+  if (!newPwd) return;
+  try {
+    const r = await callRpc('fit_change_pw', { tok: TOKEN, old_pwd: oldPwd, new_pwd: newPwd });
+    if (r.ok) toast('密码已修改');
+    else toast(r.error, true);
+  } catch (e) { toast(e.message, true); }
+}
+
+// =========================== CALCULATIONS ===========================
+function calcBMI(w, h) {
+  if (!w || !h) return 0;
+  return w / ((h / 100) ** 2);
+}
+
+function getBMICategory(bmi) {
+  if (bmi < 24) return 'normal';
+  if (bmi < 28) return 'overweight';
+  if (bmi < 32) return 'obese1';
+  if (bmi < 35) return 'obese2';
+  return 'obese3';
+}
+
+function calcTDEE(p) {
+  if (!p || !p.weight || !p.height || !p.age) return { bmr: 0, tdee: 0, target: 0 };
+  let bmr;
+  if (p.gender === 'male') bmr = 10 * p.weight + 6.25 * p.height - 5 * p.age + 5;
+  else bmr = 10 * p.weight + 6.25 * p.height - 5 * p.age - 161;
+  const act = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725 };
+  const tdee = Math.round(bmr * (act[p.activity_level] || 1.2));
+  const target = Math.round(tdee - (p.deficit || 300));
+  return { bmr: Math.round(bmr), tdee, target };
+}
+
+function getExercisePlan(p) {
+  if (!p || !p.weight || !p.height) return { warnings: [], plan: '请先填写身体数据' };
+
+  const bmi = calcBMI(p.weight, p.height);
+  const cat = getBMICategory(bmi);
+  const time = p.time_available || 30;
+  const equip = p.equipment || 'none';
+  const weight = p.weight;
+  const hasKitchen = p.has_kitchen;
+  const warnings = [];
+
+  // Safety checks
+  if (weight > 100) warnings.push('⚠️ 体重超过100kg，严禁跑步、跳跃、深蹲跳，保护膝盖和脚踝');
+  if (bmi > 35) warnings.push('⚠️ 当前体重阶段建议以饮食控制为主，运动为辅');
+  else if (bmi > 32) warnings.push('⚠️ 当前不建议剧烈运动，以低冲击活动为主');
+
+  // Build plan based on category + time + equipment
+  let planName = '', planDesc = '', intensity = 'low';
+
+  const plans = {
+    normal: {
+      15: { name: '徒手 HIIT', desc: '开合跳30秒+高抬腿30秒+波比跳30秒，循环5组，组间休息30秒', intensity: 'high' },
+      30: { name: '跑步 + 徒手力量', desc: '慢跑15分钟热身 → 俯卧撑15×3 + 深蹲20×3 + 平板支撑45秒×3', intensity: 'high' },
+      45: { name: '全身力量训练', desc: '热身5分钟 → 俯卧撑+哑铃划船+深蹲+卷腹，每个动作4组，组间休息60秒', intensity: 'high' },
+      60: { name: '健身房全身训练', desc: '跑步机10分钟热身 → 力量训练40分钟（胸背腿循环）→ 拉伸10分钟', intensity: 'high' }
+    },
+    overweight: {
+      15: { name: '快走', desc: '户外或跑步机上快走15分钟，保持微喘但能说话的速度', intensity: 'mid' },
+      30: { name: '快走 + 徒手力量', desc: '快走15分钟 → 靠墙静蹲45秒×3 + 跪姿俯卧撑10×3 + 臀桥15×3（无跳跃）', intensity: 'mid' },
+      45: { name: '骑车/游泳 + 力量', desc: '骑车或游泳25分钟 → 弹力带划船+弹力带推胸+平板支撑各3组', intensity: 'mid' },
+      60: { name: '综合训练', desc: '椭圆机或游泳30分钟 → 全身弹力带训练20分钟 → 拉伸10分钟', intensity: 'mid' }
+    },
+    obese1: {
+      15: { name: '散步', desc: '户外慢走15分钟，保持轻松步速，注意膝盖不要过度受力', intensity: 'low' },
+      30: { name: '快走 + 弹力带', desc: '快走20分钟 → 坐姿弹力带划船+坐姿推举+坐姿腿屈伸各3组', intensity: 'low' },
+      45: { name: '游泳/椭圆机', desc: '水中行走或游泳30分钟 → 坐姿拉伸10分钟 → 完全无冲击', intensity: 'low' },
+      60: { name: '低冲击综合', desc: '椭圆机30分钟 + 坐姿力量训练20分钟 + 拉伸10分钟', intensity: 'low' }
+    },
+    obese2: {
+      15: { name: '短时散步', desc: '室内慢走10分钟，注意保持平衡，随时可坐下休息', intensity: 'low' },
+      30: { name: '散步 + 坐姿拉伸', desc: '散步15分钟 → 坐姿抬腿+坐姿手臂画圈+颈部拉伸各2分钟', intensity: 'low' },
+      45: { name: '水中行走', desc: '游泳池浅水区行走20分钟（水的浮力保护关节）→ 坐姿拉伸10分钟', intensity: 'low' },
+      60: { name: '椭圆机 + 坐姿训练', desc: '椭圆机25分钟（对膝盖零冲击）→ 坐姿力量训练15分钟', intensity: 'low' }
+    },
+    obese3: {
+      15: { name: '⚠️ 以饮食为主', desc: '当前体重阶段运动风险较高。建议：室内慢走5-8分钟，每天2-3次，累计即可', intensity: 'low' },
+      30: { name: '室内慢走', desc: '室内来回慢走10-15分钟，分2次完成。可做坐姿手臂画圈、坐姿抬腿各2分钟', intensity: 'low' },
+      45: { name: '水中活动', desc: '如有条件，泳池中慢走15-20分钟（水的浮力可减少90%关节压力）→ 坐姿拉伸', intensity: 'low' },
+      60: { name: '分次散步', desc: '上午+下午各散步15分钟，不要一次性走太久。配合坐姿手臂运动和深呼吸', intensity: 'low' }
+    }
+  };
+
+  const catPlans = plans[cat] || plans.normal;
+  const plan = catPlans[time] || catPlans[30];
+
+  // Adjust by equipment
+  if (equip === 'dumbbell' && (cat === 'normal' || cat === 'overweight')) {
+    plan.desc = plan.desc.replace('徒手力量', '哑铃训练');
+  }
+  if (equip === 'gym' && cat === 'normal') {
+    plan.desc = plan.desc.replace('跑步机', '健身房器械');
+  }
+
+  // Kitchen note
+  let kitchenNote = '';
+  if (hasKitchen) {
+    kitchenNote = '\n\n🍳 有厨房：建议自己做饭，控制油盐。推荐：鸡胸肉/鱼+蔬菜+杂粮饭，每餐准备15-20分钟。';
+  } else {
+    kitchenNote = '\n\n🏪 无厨房（外卖/便利店指南）：\n早餐：两个茶叶蛋+玉米+无糖豆浆 ≈ 400kcal\n午餐：沙县鸡腿饭去皮/黄焖鸡少油/麻辣烫清汤多蔬菜 ≈ 600kcal\n晚餐：便利店：即食鸡胸肉+蔬菜沙拉+全麦面包 ≈ 450kcal';
+  }
+
+  return {
+    warnings,
+    plan: `【${plan.name}】\n${plan.desc}${kitchenNote}`,
+    intensity: plan.intensity
+  };
+}
+
+// =========================== API CALLS ===========================
+async function loadProfile() {
+  try {
+    const r = await callRpc('fit_get_profile', { tok: TOKEN });
+    if (r && r.height) profile = r; else if (r && !r.height) profile = {};
+  } catch (e) {
+    if (e.message === 'OFFLINE') throw e;
+    profile = {};
+  }
+}
+
+async function loadWeightLogs() {
+  try {
+    weightLogs = await callRpc('fit_get_weight_logs', { tok: TOKEN }) || [];
+  } catch (e) { weightLogs = []; }
+}
+
+async function loadFoodLogs() {
+  try {
+    foodLogs = await callRpc('fit_get_food_logs', { tok: TOKEN, p_date: today() }) || [];
+  } catch (e) { foodLogs = []; }
+}
+
+async function loadCheckin() {
+  try {
+    checkinToday = await callRpc('fit_get_checkin', { tok: TOKEN, p_date: today() }) || { diet_ok: false, exercise_ok: false };
+  } catch (e) { checkinToday = { diet_ok: false, exercise_ok: false }; }
+}
+
+// =========================== RENDER ===========================
+function setGreeting() {
+  const h = now().getHours();
+  let g = '早上好 ☀️';
+  if (h >= 12 && h < 18) g = '下午好 🌤️';
+  else if (h >= 18) g = '晚上好 🌙';
+  document.getElementById('greeting').textContent = g;
+  document.getElementById('todayDate').textContent = today();
+}
+
+function renderWarnings() {
+  const box = document.getElementById('warnArea');
+  if (!profile || !profile.weight || !profile.height) {
+    box.innerHTML = '<div class="warn warn-amber">⚠️ 请先在"身体"页面填写身高、体重等数据</div>';
+    return;
+  }
+  const plan = getExercisePlan(profile);
+  if (!plan.warnings.length) { box.innerHTML = ''; return; }
+  box.innerHTML = plan.warnings.map(w => {
+    const cls = w.includes('严禁') || w.includes('禁止') ? 'warn-red' : 'warn-amber';
+    return `<div class="warn ${cls}">${w}</div>`;
+  }).join('');
+}
+
+function renderDashboard() {
+  const tdee = calcTDEE(profile);
+  document.getElementById('calTarget').textContent = tdee.target || '--';
+  document.getElementById('calBurned').textContent = tdee.tdee || '--';
+
+  // Calculate remaining calories
+  let eatenCal = 0, eatenProtein = 0, eatenCarbs = 0, eatenFat = 0;
+  foodLogs.forEach(f => {
+    eatenCal += Number(f.calories) || 0;
+    eatenProtein += Number(f.protein) || 0;
+    eatenCarbs += Number(f.carbs) || 0;
+    eatenFat += Number(f.fat) || 0;
+  });
+  const remain = (tdee.target || 0) - eatenCal;
+  const remainEl = document.getElementById('calRemain');
+  remainEl.textContent = remain > 0 ? remain : (tdee.target ? '0' : '--');
+  remainEl.style.color = remain < 0 ? 'var(--red)' : 'var(--green-dark)';
+
+  // Macros
+  const targetCal = tdee.target || 2000;
+  const proteinG = Math.round(targetCal * 0.4 / 4);
+  const carbsG = Math.round(targetCal * 0.3 / 4);
+  const fatG = Math.round(targetCal * 0.3 / 9);
+  document.getElementById('macroProtein').textContent = proteinG;
+  document.getElementById('macroCarbs').textContent = carbsG;
+  document.getElementById('macroFat').textContent = fatG;
+
+  // Food list
+  const fl = document.getElementById('foodList');
+  if (!foodLogs.length) fl.innerHTML = '<div style="padding:8px;color:var(--text2);text-align:center">今天还没记录饮食</div>';
+  else {
+    fl.innerHTML = foodLogs.map(f => `
+      <div class="food-item">
+        <span>${({breakfast:'🌅',lunch:'☀️',dinner:'🌙',snack:'🍪'}[f.meal_type]||'')} ${f.description||'手动记录'}</span>
+        <span>${f.calories}kcal P:${f.protein||0} C:${f.carbs||0} F:${f.fat||0}</span>
+        <span class="del" onclick="delFood(${f.id})">×</span>
+      </div>
+    `).join('');
+  }
+  const totalEl = document.getElementById('foodTotal');
+  const cls = remain < 0 ? 'over' : 'ok';
+  totalEl.innerHTML = `已摄入 <b>${eatenCal}</b> kcal | 蛋白质 ${eatenProtein}g | 碳水 ${eatenCarbs}g | 脂肪 ${eatenFat}g | <span class="${cls}">剩余 ${remain}kcal</span>`;
+
+  // Exercise
+  const plan = getExercisePlan(profile);
+  const intCls = plan.intensity === 'high' ? 'intensity-mid' : 'intensity-low';
+  document.getElementById('exerciseBox').innerHTML = `
+    <span class="intensity ${intCls}">${plan.intensity==='high'?'高强度':plan.intensity==='mid'?'中强度':'低强度'}</span>
+    <div style="margin-top:8px;white-space:pre-line">${plan.plan}</div>
+  `;
+
+  // Checkin buttons
+  document.getElementById('btnDiet').className = 'checkin-btn' + (checkinToday.diet_ok ? ' done' : '');
+  document.getElementById('btnDiet').textContent = checkinToday.diet_ok ? '🥗 ✅ 饮食达标' : '🥗 饮食达标';
+  document.getElementById('btnExercise').className = 'checkin-btn' + (checkinToday.exercise_ok ? ' done' : '');
+  document.getElementById('btnExercise').textContent = checkinToday.exercise_ok ? '🏃 ✅ 完成运动' : '🏃 完成运动';
+
+  renderWarnings();
+}
+
+function renderProfile() {
+  if (!profile) return;
+  document.getElementById('pfHeight').value = profile.height || '';
+  document.getElementById('pfWeight').value = profile.weight || '';
+  document.getElementById('pfTarget').value = profile.target_weight || '';
+  document.getElementById('pfAge').value = profile.age || '';
+  document.getElementById('pfGender').value = profile.gender || 'male';
+  document.getElementById('pfActivity').value = profile.activity_level || 'sedentary';
+  document.getElementById('pfDeficit').value = profile.deficit || 300;
+  document.getElementById('pfTime').value = profile.time_available || 30;
+  document.getElementById('pfEquip').value = profile.equipment || 'none';
+  document.getElementById('pfKitchen').value = profile.has_kitchen ? '1' : '0';
+}
+
+function renderWeight() {
+  if (!profile) return;
+
+  const goalEl = document.getElementById('goalBar');
+  if (profile.weight && profile.target_weight) {
+    const lost = profile.weight - profile.target_weight;
+    goalEl.innerHTML = `
+      距离目标还有 <b>${lost > 0 ? lost.toFixed(1) + ' kg' : '已达成！🎉'}</b>
+      <div class="bar"><div class="fill" style="width:${lost > 0 ? Math.min(100, 100 - (lost/Math.max(profile.weight - profile.target_weight, 1))*100) : 100}%"></div></div>
+    `;
+  } else { goalEl.innerHTML = '请先设置目标体重'; }
+
+  // Chart
+  renderWeightChart();
+
+  // List
+  const list = document.getElementById('weightList');
+  if (!weightLogs.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--text2);padding:20px">暂无记录</div>';
+  } else {
+    list.innerHTML = weightLogs.slice(0, 30).map(w => `
+      <div class="item">
+        <span>${w.log_date}</span>
+        <span><b>${w.weight} kg</b></span>
+        <span style="color:var(--text2);font-size:12px">${w.note||''}</span>
+        <span style="color:var(--red);cursor:pointer" onclick="delWeight(${w.id})">×</span>
+      </div>
+    `).join('');
+  }
+}
+
+function renderWeightChart() {
+  const ctx = document.getElementById('weightChart').getContext('2d');
+  if (weightChart) weightChart.destroy();
+
+  const data = [...weightLogs].reverse().slice(-60); // last 60 entries, chronological
+
+  weightChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.log_date),
+      datasets: [
+        {
+          label: '体重 (kg)',
+          data: data.map(d => d.weight),
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34,197,94,0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: '#22c55e'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        annotation: profile && profile.target_weight ? {
+          annotations: {
+            targetLine: {
+              type: 'line',
+              yMin: profile.target_weight,
+              yMax: profile.target_weight,
+              borderColor: '#ef4444',
+              borderWidth: 1,
+              borderDash: [5, 5],
+              label: { content: '目标', display: true }
+            }
+          }
+        } : {}
+      },
+      scales: {
+        y: { grace: '5%' }
+      }
+    }
+  });
+}
+
+// =========================== TAB SWITCHING ===========================
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+
+  const tabEl = document.getElementById('tab' + name);
+  if (tabEl) tabEl.classList.remove('hidden');
+
+  const navEl = document.querySelector(`[data-tab="${name}"]`);
+  if (navEl) navEl.classList.add('active');
+
+  if (name === 'Dashboard') renderDashboard();
+  if (name === 'Profile') renderProfile();
+  if (name === 'Weight') renderWeight();
+}
+
+// =========================== ACTIONS ===========================
+async function saveProfile() {
+  const p = {
+    tok: TOKEN,
+    p_height: parseFloat(document.getElementById('pfHeight').value) || null,
+    p_weight: parseFloat(document.getElementById('pfWeight').value) || null,
+    p_target_weight: parseFloat(document.getElementById('pfTarget').value) || null,
+    p_age: parseInt(document.getElementById('pfAge').value) || null,
+    p_gender: document.getElementById('pfGender').value,
+    p_activity_level: document.getElementById('pfActivity').value,
+    p_deficit: parseInt(document.getElementById('pfDeficit').value) || 300,
+    p_time_available: parseInt(document.getElementById('pfTime').value) || 30,
+    p_equipment: document.getElementById('pfEquip').value,
+    p_has_kitchen: document.getElementById('pfKitchen').value === '1'
+  };
+  try {
+    await callRpc('fit_save_profile', p);
+    profile = { height: p.p_height, weight: p.p_weight, target_weight: p.p_target_weight, age: p.p_age, gender: p.p_gender, activity_level: p.p_activity_level, deficit: p.p_deficit, time_available: p.p_time_available, equipment: p.p_equipment, has_kitchen: p.p_has_kitchen };
+    toast('保存成功！');
+    renderDashboard();
+  } catch (e) { toast('保存失败: ' + e.message, true); }
+}
+
+async function addFood() {
+  const desc = document.getElementById('foodDesc').value.trim();
+  if (!desc) { toast('请描述吃了什么', true); return; }
+
+  const aiKey = localStorage.getItem('fit_aikey');
+  if (!aiKey) {
+    // No AI key, manual mode
+    toast('请先到设置页填写 AI API Key，或使用下方手动输入', true);
+    return;
+  }
+
+  const btn = document.getElementById('addFoodBtn');
+  btn.textContent = '⏳'; btn.disabled = true;
+
+  try {
+    const nutrition = await aiEstimateFood(desc);
+    const mealType = document.getElementById('mealType').value;
+    await callRpc('fit_add_food_log', {
+      tok: TOKEN, p_date: today(), p_meal_type: mealType,
+      p_description: desc,
+      p_calories: nutrition.calories,
+      p_protein: nutrition.protein,
+      p_carbs: nutrition.carbs,
+      p_fat: nutrition.fat
+    });
+    document.getElementById('foodDesc').value = '';
+    await loadFoodLogs();
+    renderDashboard();
+    toast(`已记录：约 ${nutrition.calories} kcal (${nutrition.confidence === 'high' ? '较准确' : '估算'})`);
+  } catch (e) {
+    toast('AI 估热失败: ' + e.message, true);
+  }
+  btn.textContent = '🤖 估热'; btn.disabled = false;
+}
+
+async function addFoodManual() {
+  const cal = parseInt(document.getElementById('manualCal').value);
+  if (!cal || cal <= 0) { toast('请输入热量', true); return; }
+  const desc = document.getElementById('foodDesc').value.trim() || '手动记录';
+  const mealType = document.getElementById('mealType').value;
+  try {
+    await callRpc('fit_add_food_log', {
+      tok: TOKEN, p_date: today(), p_meal_type: mealType,
+      p_description: desc,
+      p_calories: cal, p_protein: 0, p_carbs: 0, p_fat: 0
+    });
+    document.getElementById('foodDesc').value = '';
+    document.getElementById('manualCal').value = '';
+    await loadFoodLogs();
+    renderDashboard();
+    toast(`已记录 ${cal} kcal`);
+  } catch (e) { toast('记录失败: ' + e.message, true); }
+}
+
+async function delFood(id) {
+  try {
+    await callRpc('fit_del_food_log', { tok: TOKEN, p_id: id });
+    await loadFoodLogs();
+    renderDashboard();
+    toast('已删除');
+  } catch (e) { toast(e.message, true); }
+}
+
+async function aiEstimateFood(desc) {
+  const provider = localStorage.getItem('fit_aiprovider') || 'deepseek';
+  const aiKey = localStorage.getItem('fit_aikey');
+
+  const prompt = `你是一个营养师。请估算以下食物的热量和营养素含量。
+
+食物描述：${desc}
+
+只返回JSON，不要其他内容：
+{"calories": 数字（千卡）, "protein": 数字（克）, "carbs": 数字（克）, "fat": 数字（克）, "confidence": "high|medium|low"}`;
+
+  let resp;
+  if (provider === 'deepseek') {
+    resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + aiKey },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1
+      })
+    });
+    const data = await resp.json();
+    const content = data.choices[0].message.content;
+    return JSON.parse(content.replace(/```json\n?/g, '').replace(/```/g, '').trim());
+  } else if (provider === 'openai') {
+    resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + aiKey },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1
+      })
+    });
+    const data = await resp.json();
+    const content = data.choices[0].message.content;
+    return JSON.parse(content.replace(/```json\n?/g, '').replace(/```/g, '').trim());
+  } else if (provider === 'claude') {
+    resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': aiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const content = data.content[0].text;
+    return JSON.parse(content.replace(/```json\n?/g, '').replace(/```/g, '').trim());
+  }
+  throw new Error('Unknown provider');
+}
+
+async function addWeight() {
+  const w = parseFloat(document.getElementById('weightInput').value);
+  if (!w || w <= 0) { toast('请输入有效体重', true); return; }
+  try {
+    await callRpc('fit_add_weight_log', { tok: TOKEN, p_date: today(), p_weight: w, p_note: '' });
+    document.getElementById('weightInput').value = '';
+    await loadWeightLogs();
+    if (profile) { profile.weight = w; }
+    renderWeight();
+    renderDashboard();
+    toast('体重已记录');
+  } catch (e) { toast(e.message, true); }
+}
+
+async function delWeight(id) {
+  try {
+    await callRpc('fit_del_weight_log', { tok: TOKEN, p_id: id });
+    await loadWeightLogs();
+    renderWeight();
+    toast('已删除');
+  } catch (e) { toast(e.message, true); }
+}
+
+async function toggleCheckin(type) {
+  const diet = type === 'diet' ? !checkinToday.diet_ok : checkinToday.diet_ok;
+  const exercise = type === 'exercise' ? !checkinToday.exercise_ok : checkinToday.exercise_ok;
+  try {
+    await callRpc('fit_checkin', { tok: TOKEN, p_date: today(), p_diet: diet, p_exercise: exercise, p_note: '' });
+    checkinToday = { diet_ok: diet, exercise_ok: exercise };
+    renderDashboard();
+    toast(type === 'diet' ? (diet ? '🥗 饮食达标！' : '取消饮食打卡') : (exercise ? '🏃 运动完成！' : '取消运动打卡'));
+  } catch (e) { toast(e.message, true); }
+}
+
+function saveAiKey() {
+  const key = document.getElementById('aiKey').value.trim();
+  const provider = document.getElementById('aiProvider').value;
+  localStorage.setItem('fit_aikey', key);
+  localStorage.setItem('fit_aiprovider', provider);
+  toast('AI 设置已保存');
+}
+
+function exportData() {
+  const data = { profile, weightLogs, foodLogs, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `减脂数据备份_${today()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('数据已导出');
+}
+
+// =========================== INIT ===========================
+async function initApp() {
+  setGreeting();
+
+  // Restore AI settings
+  const savedKey = localStorage.getItem('fit_aikey');
+  const savedProvider = localStorage.getItem('fit_aiprovider');
+  if (savedKey) document.getElementById('aiKey').value = savedKey;
+  if (savedProvider) document.getElementById('aiProvider').value = savedProvider;
+
+  try {
+    await Promise.all([loadProfile(), loadWeightLogs(), loadFoodLogs(), loadCheckin()]);
+  } catch (e) {
+    if (e.message === 'OFFLINE') {
+      toast('离线模式，数据未同步', true);
+    }
+  }
+
+  renderDashboard();
+}
+
+// =========================== TAB BAR EVENTS ===========================
+document.querySelectorAll('.tab-item').forEach(el => {
+  el.addEventListener('click', () => switchTab(el.dataset.tab));
+});
+
+// =========================== KEYBOARD ===========================
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const activeTab = document.querySelector('.tab-content:not(.hidden)');
+    if (activeTab && activeTab.id === 'tabProfile') saveProfile();
+  }
+});
+
+// =========================== START ===========================
+if (TOKEN) {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+  initApp();
+}
+</script>
+
+</body>
+</html>
+
